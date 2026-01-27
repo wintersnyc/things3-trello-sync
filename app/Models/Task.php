@@ -46,7 +46,7 @@ class Task extends BaseTask
                         ->whereHas('tags', $tagScope) // Task tags
                         ->orWhereHas('parentProject', $projectScope) // Direct parent project tags
                         ->orWhereHas('parentArea', $parentScope) // Direct parent area tags
-                        ->orWhereHas('heading', $headingScope); // Direct parent heading nested parent tags
+                        ->orWhereHas('headingRel', $headingScope); // Direct parent heading nested parent tags
                 });
             });
         }
@@ -90,8 +90,8 @@ class Task extends BaseTask
         $default = config("trello.{$category}.default");
 
         $title = match (config("trello.{$category}.things")) {
-            'heading' => $this->heading?->title,
-            'project' => $this->parentProject?->title ?? $this->heading?->parentProject->title,
+            'heading' => $this->headingRel?->title,
+            'project' => $this->parentProject?->title ?? $this->headingRel?->parentProject?->title,
             'area' => $this->parentArea?->title ?? $this->parentProject?->parentArea->title,
             default => null,
         } ?? $default;

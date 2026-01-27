@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 trait HasHeading
 {
-    public function heading(): BelongsTo
+    public function headingRel(): BelongsTo
     {
-        return $this->belongsTo(Heading::class, 'actionGroup');
+        return $this->belongsTo(Heading::class, 'heading', 'uuid');
     }
 }

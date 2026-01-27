@@ -11,7 +11,14 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SyncTasks extends Command
 {
-    protected $signature = 'things:sync {--force} {--filter=} {--limit=} {--minutes=} {--stats}';
+    protected $signature = 'things:sync 
+        {--force}
+        {--filter=}
+        {--limit=}
+        {--minutes=}
+        {--stats}
+        {--dryrun}
+    ';
 
     public function handle()
     {
@@ -34,9 +41,11 @@ class SyncTasks extends Command
             render("Syncing <span class='text-green-500'>recently changed</span> (<span class='text-yellow-500'>{$tasks->count()}</span>) tasks");
         }
 
-        $tasks->each(function (Task $task) {
+        $dryRun = (bool) $this->option('dryrun');
+
+        $tasks->each(function (Task $task) use ($dryRun) {
             $original = $task->findCard();
-            $new = $task->updateOrCreateOnTrello();
+            $new = $task->updateOrCreateOnTrello(dryRun: $dryRun);
 
             if (! $new) {
                 // Shouldn't be created

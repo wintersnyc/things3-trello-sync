@@ -15,8 +15,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('things:sync')->everyMinute();
-        $schedule->command('things:sync --force')->everyFifteenMinutes();
+        // COMMENTED OFF -- Auto-sync disabled while refining dryRun
+        // $schedule->command('things:sync')->everyMinute();
+        // $schedule->command('things:sync --force')->everyFifteenMinutes();
     }
 
     /**

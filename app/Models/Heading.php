@@ -16,6 +16,6 @@ class Heading extends BaseTask
 
     public function tasks(): HasMany
     {
-        return $this->hasMany(Task::class, 'actionGroup');
+        return $this->hasMany(Task::class, 'heading');
     }
 }
