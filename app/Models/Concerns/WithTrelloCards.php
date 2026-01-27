@@ -29,16 +29,32 @@ trait WithTrelloCards
         return Client::createCard($this);
     }
 
-    public function updateOrCreateOnTrello(Card $card = null): ?Card
+    public function updateOrCreateOnTrello(Card $card = null, bool $dryRun = false): ?Card
     {
-        if ($card ??= $this->findCard()) {
-            return $this->updateOnTrello($card);
-        } else {
-            return Client::createCard($this);
+        $card ??= $this->findCard();
+        
+        if ($card) {
+            return $this->updateOnTrello($card, $dryRun);
         }
+
+        // No Existing Card
+        if (! $this->statusConfig()['create']) {
+            // Respect Existing "Shouldn't Be Created" Logic
+            if ($dryRun) {
+                echo "Would: Skip create (status rules) for task {$this->uuid} ({$this->title})\n";
+            }
+            return null;
+        }
+
+        if ($dryRun) {
+            echo "WOULD: Create Trello Card for Task {$this->uuid} ({$this->title}) on board '{$this->targetBoard('name')}' in list '{$this->targetList('name')}'\n";
+            return null; // return null so the caller can treat it as "not created"
+        }
+
+        return Client::createCard($this);
     }
 
-    public function updateOnTrello(Card $card = null): Card
+    public function updateOnTrello(Card $card = null, bool $dryRun = false): Card
     {
         $card ??= $this->findCard();
 
@@ -51,15 +67,22 @@ trait WithTrelloCards
             $newStatus = collect($this->boardStatusConfig())->where('when.list', Client::listName($card->idList, $card->idBoard))->keys()->first();
 
             if ($newStatus !== null && $this->status !== $newStatus) {
-                $this->update(['status' => $newStatus]);
+                if ($dryRun) {
+                    echo "WOULD: Update Things status for task {$this->uuid} ({this->title}) from {$this->status} to {$newStatus}\n";
+                } else {
+                    $this->update(['status' => $newStatus]);
             }
         }
 
+        if ($dryRun) {
+            echo "WOULD: Update Trello card {$card->id} for task {$this->uuid} ({$this->title})\n";
+            return $card; // return existing card unchanged        
+        }
         $card = Client::updateCard($card, $this);
 
         return $card;
     }
-
+}
     public function deleteOnTrello(Card $card = null): bool
     {
         if ($card ??= $this->findCard()) {
