@@ -17,11 +17,22 @@ class SyncTasks extends Command
         {--limit=}
         {--minutes=}
         {--stats}
-        {--dryrun}
+        {--dryrun : Run Sync without writing anything to preview changes}
+        {--pull-from-trello : Fetch Changes from Trello (read-only)}
     ';
 
     public function handle()
     {
+        // Trello Pull
+        $dryRun = (bool) $this->option('dryrun');
+
+        if ($this->option('pull-from-trello')) {
+            $this->line('--- Trello Pull: Starting (read-only) ---');
+            $this->pullFromTrello(dryRun: $dryRun);
+            $this->line('--- Trello Pull: done ---');
+        }
+
+        // Beging Query for Things Sync
         $query = Task::query()
             ->orderBy('userModificationDate', 'desc')
             ->when($limit = $this->option('limit'), fn (Builder $query) => $query->limit($limit))
@@ -40,8 +51,6 @@ class SyncTasks extends Command
 
             render("Syncing <span class='text-green-500'>recently changed</span> (<span class='text-yellow-500'>{$tasks->count()}</span>) tasks");
         }
-
-        $dryRun = (bool) $this->option('dryrun');
 
         $tasks->each(function (Task $task) use ($dryRun) {
             $original = $task->findCard();
@@ -109,4 +118,13 @@ class SyncTasks extends Command
             ));
         }
     }
+
+    private function pullFromTrello(bool $dryRun): void
+        {
+            if($dryRun) {
+                $this->line('Trello pull running in dry run mode (no cursor updates).');
+            }
+
+            $this->line('Trello pull placeholder: next step will fetch board actions.');
+        }
 }
