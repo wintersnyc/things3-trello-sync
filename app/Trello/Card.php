@@ -66,9 +66,9 @@ class Card extends APIResource
 
     public function getTaskUUID(): string|null
     {
-        $uuid = (string) Str::of($this->desc)->match('/\(things:\/\/\/show\?id\=(.*?)\)/');
+        $uuid = (string) Str::of($this->desc)->match('/\(things:\/\/\/show\?id\=([A-Za-z0-9]{22})/');
 
-        if ($uuid && strlen($uuid) === 22) {
+        if ($uuid) {
             Client::$taskCardCache[$uuid] = $this->id;
         }
 

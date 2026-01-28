@@ -23,6 +23,14 @@ Route::get('/sync', function () {
     return view('sync');
 });
 
+// Things3 Hyperlink Description Workaround
+Route::get('/things/{uuid}', function (string $uuid) {
+    // Basic Check for UUID
+    abort_unless(preg_match('/^[A-Za-z0-9]{22}$/', $uuid), 404);
+
+    return redirect()->away("things:///show?id={$uuid}");
+});
+
 Route::post('/sync', function (\Illuminate\Http\Request $request) {
     $token = trim((string) $request->input('token', ''));
     $expected = trim((string) env('SYNC_TOKEN', ''));

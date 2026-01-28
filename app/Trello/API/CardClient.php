@@ -126,10 +126,22 @@ trait CardClient
 
     protected static function syncedTaskData(Task $task): array
     {
-        return [
-            ...$task->syncedData(),
-            'desc' => "{$task->notes}\n\n---- Don't edit below this line ----\n**[View original task in Things](things:///show?id={$task->uuid})**",
-        ];
+            $thingsUrl = "things:///show?id={$task->uuid}";
+            $openUrl = rtrim(config('app.url'), '/') . "/things/{$task->uuid}";
+
+            $notes = rtrim((string) $task->notes);
+
+            // Card Description
+            $desc =
+                $notes
+                . "\n\n---- Don't edit below this line ----\n"
+                . "[Open in Things]({$openUrl})\n"
+                . "Things Direct URL: {$thingsUrl}";
+
+            return [
+                ...$task->syncedData(),
+                'desc' => $desc,
+            ];
     }
 
     protected static function makeCard(array $data, Task $task): Card
