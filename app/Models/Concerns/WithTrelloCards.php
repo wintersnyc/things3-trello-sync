@@ -80,7 +80,7 @@ trait WithTrelloCards
         if (Carbon::parse($card->dateLastActivity)->isAfter($this->userModificationDate)) {
             $newStatus = collect($this->boardStatusConfig())
                 ->where('when.list', Client::listName($card->idList, $card->idBoard))
-                >keys()
+                ->keys()
                 ->first();
 
             if ($newStatus !== null && $this->status !== $newStatus) {
