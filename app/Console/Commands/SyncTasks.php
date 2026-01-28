@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SyncTasks extends Command
 {
-    protected $signature = 'things:sync 
+    protected $signature = 'things:sync
         {--force}
         {--filter=}
         {--limit=}
@@ -45,19 +45,43 @@ class SyncTasks extends Command
 
         $tasks->each(function (Task $task) use ($dryRun) {
             $original = $task->findCard();
-            $new = $task->updateOrCreateOnTrello(dryRun: $dryRun);
 
+            $messages = [];
+
+            $new = $task->updateOrCreateOnTrello(
+                card: $original,
+                dryRun: $dryRun,
+                dryRunMessages: $messages
+            );
+
+            // In Dry Run, Print Collected Messages so Web UI can show them
+            if ($dryRun) {
+                foreach ($messages as $m) {
+                    $this->line($m);
+                }
+
+                // Added Block
+                if (empty($messages)) {
+                    render("<span class='text-blue-500'>Dry run: no changes for <a href='things:///show?id={$task->uuid}'>{$task->uuid}</a> (<span class='font-bold'>{$task->title}</span>)</span>");
+                } else {
+                    render("<span class='text-purple-500'>Dry run: <a href='things:///show?id={$task->uuid}'>{$task->uuid}</a> (<span class='font-bold'>{$task->title}</span>)</span>");
+                }
+
+                return;
+            }
+
+            // Existing Summary Logic
             if (! $new) {
-                // Shouldn't be created
+                // Skipped
                 render("<span class='text-gray-500'>Skipped task <a href='things:///show?id={$task->uuid}'>{$task->uuid}</a> (<span class='font-bold'>{$task->title}</span>)</span>");
             } else if (! $original) {
-                // Didn't exist
+                // Created
                 render("<span class='text-green-500'>Created task <a href='things:///show?id={$task->uuid}'>{$task->uuid}</a> (<a class='font-bold' href='https://trello.com/c/{$new->id}'>{$task->title}</a>)</span>");
             } else if ($new->recentlyChangedChildren || ! $new->equals($original)) {
-                // Was outdated
+                // Updated
                 render("<span class='text-yellow-500'>Updated task <a href='things:///show?id={$task->uuid}'>{$task->uuid}</a> (<a class='font-bold' href='https://trello.com/c/{$new->id}'>{$task->title}</a>)</span>");
             } else {
-                // Up to date
+                // Checked
                 render("<span class='text-blue-500'>Checked task <a href='things:///show?id={$task->uuid}'>{$task->uuid}</a> (<a class='font-bold' href='https://trello.com/c/{$new->id}'>{$task->title}</a>)</span>");
             }
         });

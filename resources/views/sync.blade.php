@@ -29,12 +29,12 @@
 
   <form method="POST" action="/sync">
     @csrf
-   
+
     <p>
       <label>
         Token:
         <input name="token" value="{{ $token ?? '' }}" style="padding:8px; width: 360px;" />
-      </label> 
+      </label>
     </p>
 
     <p>
@@ -46,12 +46,12 @@
 
 
     <button type="submit">Sync Now</button>
-  </form>
 
   @if (!empty($output))
     <h2>Output</h2>
     <pre>{{ $output }}</pre>
   @endif
+  </form>
 
 </body>
 </html>

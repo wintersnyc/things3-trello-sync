@@ -40,8 +40,9 @@ Route::post('/sync', function (\Illuminate\Http\Request $request) {
     }
 
     Artisan::call('things:sync', $args);
+
     $output = Artisan::output();
-    
+
     return view('sync', [
         'output' => $output,
         'token' => $token,
