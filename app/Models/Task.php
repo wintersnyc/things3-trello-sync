@@ -70,14 +70,22 @@ class Task extends BaseTask
         ];
     }
 
-    public function targetList(string $property = 'id'): string
+    public function targetList(string $property = 'id', bool $dryRun = false): string
     {
-        return BoardList::firstOrCreate($this->targetBoard(), $this->mapToTrello('list'))->$property;
+        return BoardList::firstOrCreate(
+            $this->targetBoard('id', $dryRun),
+            $this->mapToTrello('list'),
+            $dryRun
+        )->$property;
     }
 
-    public function targetBoard(string $property = 'id'): string
+    public function targetBoard(string $property = 'id', bool $dryRun = false)
     {
-        return Board::firstOrCreate($this->targetWorkspace(), $this->mapToTrello('board'))->$property;
+        return Board::firstOrCreate(
+            $this->targetWorkspace(),
+            $this->mapToTrello('board'),
+            $dryRun
+        )->$property;
     }
 
     public function targetWorkspace(): string

@@ -3,6 +3,7 @@
 namespace App\Trello;
 
 use Illuminate\Support\Str;
+use App\Trello\API\BoardActionClient;
 use App\Trello\API\BoardClient;
 use App\Trello\API\BoardListClient;
 use App\Trello\API\CardClient;
@@ -19,7 +20,7 @@ use Illuminate\Http\Client\Response;
  */
 class Client
 {
-    use CardClient, BoardClient, BoardListClient, ChecklistClient, LabelClient;
+    use CardClient, BoardClient, BoardListClient, ChecklistClient, LabelClient, BoardActionClient;
 
     public static array $log = [];
 
