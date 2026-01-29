@@ -46,9 +46,9 @@ trait BoardListClient
     }
 
     /** Convert a list's name to an ID. */
-    public static function listID(string $list, Board|string $board): string
+    public static function listID(string $list, Board|string $board, bool $dryRun = false): string
     {
-        return BoardList::firstOrCreate($board, $list)->id;
+        return BoardList::firstOrCreate($board, $list, $dryRun)->id;
     }
 
     /** Get a list's name. */
